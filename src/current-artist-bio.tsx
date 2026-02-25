@@ -77,7 +77,7 @@ export default function Command() {
         markdown={[
           "# Install `media-control`",
           "",
-          "MusicSeer needs `media-control` to auto-detect the currently playing track on macOS.",
+          "Music Seer needs `media-control` to auto-detect the currently playing track on macOS.",
           "",
           "Install with Homebrew:",
           "```bash",

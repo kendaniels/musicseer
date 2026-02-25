@@ -91,7 +91,7 @@ export default function Command() {
           markdown={[
             "# Install `media-control`",
             "",
-            "MusicSeer needs `media-control` to auto-detect the currently playing track on macOS.",
+            "Music Seer needs `media-control` to auto-detect the currently playing track on macOS.",
             "",
             "Official install method:",
             "```bash",
@@ -150,7 +150,7 @@ export default function Command() {
           markdown={[
             "# `media-control` is installed",
             "",
-            "MusicSeer can access `media-control` successfully.",
+            "Music Seer can access `media-control` successfully.",
             "",
             "No active track was detected right now. Start playback and run refresh again.",
           ].join("\n")}
