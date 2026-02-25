@@ -94,9 +94,28 @@
     },
     {
       "name": "now-playing-menubar",
-      "title": "♫ Now Playing",
+      "title": "Now Playing Menu Bar Item",
       "description": "Show currently playing track and artist in the macOS menu bar.",
       "mode": "menu-bar",
+      "preferences": [
+        {
+          "name": "menuBarTitleTemplate",
+          "type": "textfield",
+          "required": false,
+          "title": "Menu Bar Title Template",
+          "description": "Available variables: {track}, {artist}, {album}. Example: {track} — {artist}",
+          "default": "{track} — {artist}"
+        },
+        {
+          "name": "showAlbumArtwork",
+          "type": "checkbox",
+          "required": false,
+          "title": "Show Album Artwork",
+          "description": "Toggle album artwork visibility in the Raycast menu bar.",
+          "label": "Show album artwork in menu bar",
+          "default": true
+        }
+      ],
       "interval": "10s"
     }
   ],

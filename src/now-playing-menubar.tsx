@@ -1,4 +1,4 @@
-import { Cache, LaunchType, MenuBarExtra, launchCommand } from "@raycast/api";
+import { Cache, LaunchType, MenuBarExtra, getPreferenceValues, launchCommand } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import { inspectNowPlayingForLookup } from "./media-control";
 
@@ -11,8 +11,14 @@ type NowPlayingState = {
   error?: string;
 };
 
+type Preferences = {
+  menuBarTitleTemplate?: string;
+  showAlbumArtwork?: boolean;
+};
+
 const menubarCache = new Cache({ namespace: "now-playing-menubar" });
 const LAST_STATE_CACHE_KEY = "last-state";
+const DEFAULT_TITLE_TEMPLATE = "{art} {track} — {artist}";
 
 function defaultState(): NowPlayingState {
   return {
@@ -72,11 +78,35 @@ function readStringField(payload: unknown, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function menuTitle(state: NowPlayingState): string {
+function normalizeTemplate(template?: string): string {
+  const trimmed = (template || "").trim();
+  return trimmed || DEFAULT_TITLE_TEMPLATE;
+}
+
+function menuTitle(state: NowPlayingState, template: string): string {
   if (state.status !== "ok" || !state.track) {
     return "♫";
   }
-  return state.artist ? `${state.track} — ${state.artist}` : state.track;
+
+  const values: Record<string, string> = {
+    track: state.track,
+    artist: state.artist,
+    album: state.album,
+  };
+
+  const rendered = template.replace(/\{(track|artist|album)\}/gi, (_, token: string) => {
+    return values[token.toLowerCase()] || "";
+  });
+
+  // Remove hanging separators when optional values are missing.
+  const cleaned = rendered
+    .replace(/\s+/g, " ")
+    .replace(/\s*([—–|:-])\s*/g, " $1 ")
+    .replace(/^[\s—–|:-]+|[\s—–|:-]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return cleaned || state.track;
 }
 
 function toArtworkDataUri(data: string, mimeType: string): string {
@@ -124,6 +154,9 @@ function readArtworkUrl(payload: unknown): string {
 }
 
 export default function Command() {
+  const preferences = getPreferenceValues<Preferences>();
+  const titleTemplate = normalizeTemplate(preferences.menuBarTitleTemplate);
+  const showArtworkInMenuBar = preferences.showAlbumArtwork ?? true;
   const cachedState = readCachedState();
   const [hasInitialized, setHasInitialized] = useState(!!cachedState);
   const [state, setState] = useState<NowPlayingState>(cachedState || defaultState());
@@ -276,8 +309,8 @@ export default function Command() {
   return (
     <MenuBarExtra
       isLoading={!hasInitialized}
-      title={menuTitle(state)}
-      icon={state.artworkUrl || undefined}
+      title={menuTitle(state, titleTemplate)}
+      icon={showArtworkInMenuBar ? state.artworkUrl || undefined : undefined}
       tooltip="MusicSeer Now Playing"
     >
       <MenuBarExtra.Section title="Open Command">
