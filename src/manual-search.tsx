@@ -1,9 +1,8 @@
-import { ActionPanel, List, Action, LaunchProps, Icon, Detail, LaunchType, launchCommand } from "@raycast/api";
+import { Action, ActionPanel, Icon, LaunchProps, List } from "@raycast/api";
 import { useFetch, useLocalStorage } from "@raycast/utils";
-import { useEffect, useState } from "react";
-import Lyrics from "./Lyrics";
+import { useState } from "react";
 import History, { HistoryItem } from "./History";
-import { inspectNowPlaying } from "./media-control";
+import Lyrics from "./Lyrics";
 
 type QueryResponse = {
   response: {
@@ -20,42 +19,8 @@ type Hit = {
   };
 };
 
-export default function Command(props: LaunchProps<{ arguments: Arguments.Index }>) {
-  const initialQuery = props.arguments.query?.trim() || "";
-  const autoMode = initialQuery.length === 0 && process.platform === "darwin";
-  const [searchText, setSearchText] = useState(initialQuery);
-  const [isDetectingTrack, setIsDetectingTrack] = useState(autoMode);
-  const [trackDetectionError, setTrackDetectionError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!autoMode) {
-      return;
-    }
-
-    let cancelled = false;
-
-    async function detectTrack() {
-      setIsDetectingTrack(true);
-      const info = await inspectNowPlaying();
-      if (cancelled) {
-        return;
-      }
-      if (info.query) {
-        setSearchText(info.query);
-        setTrackDetectionError(null);
-      } else {
-        setTrackDetectionError(info.error || "No now-playing track detected");
-      }
-      setIsDetectingTrack(false);
-    }
-
-    void detectTrack();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [autoMode]);
-
+export default function Command(props: LaunchProps<{ arguments: Arguments.ManualSearch }>) {
+  const [searchText, setSearchText] = useState(props.arguments.query || "");
   const { data, isLoading } = useFetch<QueryResponse>(
     `https://genius.com/api/search?q=${encodeURIComponent(searchText)}`,
     {
@@ -68,52 +33,13 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Index 
     setValue: setHistory,
     isLoading: isHistoryLoading,
   } = useLocalStorage<HistoryItem[]>("history", []);
-  const topHit = data?.response.hits?.[0]?.result;
-
-  if (autoMode) {
-    if (isDetectingTrack || isLoading || isHistoryLoading) {
-      return <Detail isLoading markdown="Searching Genius.com using your currently playing track..." />;
-    }
-
-    if (topHit) {
-      return <Lyrics url={topHit.url} title={topHit.full_title} songId={topHit.id} preferredManualQuery={searchText} />;
-    }
-
-    const failureMessage =
-      searchText.length === 0
-        ? `Unable to detect a current track.\n\n${trackDetectionError ? `Error: \`${trackDetectionError}\`` : ""}`
-        : `No Genius.com result found for:\n\n\`${searchText}\``;
-
-    return (
-      <Detail
-        markdown={failureMessage}
-        actions={
-          <ActionPanel>
-            <Action
-              title="Search Song Manually"
-              shortcut={{ modifiers: ["cmd"], key: "s" }}
-              onAction={async () => {
-                await launchCommand({
-                  name: "manual-search",
-                  type: LaunchType.UserInitiated,
-                  arguments: {
-                    query: searchText,
-                  },
-                });
-              }}
-            />
-          </ActionPanel>
-        }
-      />
-    );
-  }
 
   return (
     <List
-      isLoading={isLoading || isHistoryLoading || isDetectingTrack}
+      isLoading={isLoading || isHistoryLoading}
       searchText={searchText}
       onSearchTextChange={setSearchText}
-      searchBarPlaceholder="Enter title (or auto-detect from now playing)..."
+      searchBarPlaceholder="Enter title..."
       throttle
     >
       {searchText.length === 0 ? (

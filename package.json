@@ -1,14 +1,15 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "genius-lyrics",
-  "title": "Genius Lyrics",
+  "name": "musicseer",
+  "title": "MusicSeer",
   "description": "Search by song title to instantly view lyrics, or enter remembered lyrics to quickly find the song's title, utilizing the Genius Lyrics API.",
-  "icon": "command-icon.png",
+  "icon": "command-icon-v2.png",
   "author": "tkdkid1000",
   "contributors": [
     "johnstclair",
     "ryanlauderbach",
-    "jacperegrinedavies"
+    "jacperegrinedavies",
+    "kendaniels"
   ],
   "categories": [
     "Media"
@@ -17,8 +18,21 @@
   "commands": [
     {
       "name": "index",
-      "title": "Search Lyrics by Title",
+      "title": "Get Current Song Lyrics",
       "description": "Search lyrics with the Genius API.",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "query",
+          "placeholder": "Query",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "manual-search",
+      "title": "Manual Song Search",
+      "description": "Manually search songs by title and artist with the Genius API.",
       "mode": "view",
       "arguments": [
         {
@@ -40,6 +54,12 @@
           "type": "text"
         }
       ]
+    },
+    {
+      "name": "manage-prompts",
+      "title": "Manage Interpretation Prompts",
+      "description": "Add, edit, delete, and reset lyric interpretation prompts.",
+      "mode": "view"
     }
   ],
   "dependencies": {

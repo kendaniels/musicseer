@@ -1,11 +1,13 @@
-import { Action, ActionPanel, Detail } from "@raycast/api";
+import { Action, ActionPanel, Detail, LaunchType, launchCommand } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { load } from "cheerio";
 import { useMemo } from "react";
+import InterpretLyricsView from "./interpret-lyrics";
 
 type SongResponse = {
   response: {
     song: {
+      title?: string;
       primary_artist: {
         name: string;
       };
@@ -24,7 +26,17 @@ type SongResponse = {
   };
 };
 
-export default function Lyrics({ url, title, songId }: { url: string; title: string; songId?: number }) {
+export default function Lyrics({
+  url,
+  title,
+  songId,
+  preferredManualQuery,
+}: {
+  url: string;
+  title: string;
+  songId?: number;
+  preferredManualQuery?: string;
+}) {
   const { data: htmlData, isLoading: isHtmlLoading } = useFetch<string>(url, {
     keepPreviousData: true,
   });
@@ -50,7 +62,9 @@ export default function Lyrics({ url, title, songId }: { url: string; title: str
 
   // Extract metadata from API response
   const song = songData?.response?.song;
+  const songTitle = song?.title || title;
   const artist = song?.primary_artist?.name || "";
+  const manualSearchQuery = preferredManualQuery?.trim() || [songTitle, artist].filter(Boolean).join(" ").trim();
   const album = song?.album?.name || "";
   const releaseDate = song?.release_date_for_display || song?.release_date || "";
   const producersArr = song?.producer_artists?.map((p: { name: string }) => p.name) || [];
@@ -101,6 +115,24 @@ export default function Lyrics({ url, title, songId }: { url: string; title: str
       }
       actions={
         <ActionPanel>
+          <Action.Push
+            title="Interpret Lyrics"
+            shortcut={{ modifiers: ["cmd"], key: "i" }}
+            target={<InterpretLyricsView title={title} artist={artist} lyrics={text} sourceUrl={url} />}
+          />
+          <Action
+            title="Search Song Manually"
+            shortcut={{ modifiers: ["cmd"], key: "s" }}
+            onAction={async () => {
+              await launchCommand({
+                name: "manual-search",
+                type: LaunchType.UserInitiated,
+                arguments: {
+                  query: manualSearchQuery,
+                },
+              });
+            }}
+          />
           <Action.OpenInBrowser title="Open in Browser" url={url} />
         </ActionPanel>
       }

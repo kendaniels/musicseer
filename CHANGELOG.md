@@ -1,4 +1,14 @@
-# Genius Lyrics Changelog
+# Musicseer Changelog
+
+## [Feature Additions] - 2026-02-25
+- Added automatic lyric search based on media currently playing (requires `media-control` library).
+- Added AI lyric interpretation.
+- Added prompt management interface.
+
+## [Rebrand Copy Updates] - 2026-02-25
+- Rename extension package from `genius-lyrics` to `musicseer`.
+- Update the action label from `Open Song on Genius` to `Open Song on Genius.com`.
+- Update in-app status and empty-state messaging to use `Genius.com` wording.
 
 ## [Add Metadata Details] - 2026-01-05
 - Add artist, album, release date, producers, and writers metadata about the currently displayed lyrics.
