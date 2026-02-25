@@ -2,13 +2,28 @@
 
 Forked from the Raycast **Genius Lyrics** extension: [raycast/extensions/tree/main/extensions/genius-lyrics](https://github.com/raycast/extensions/tree/main/extensions/genius-lyrics).
 
-## 🎧 Current Playing Media Search
+## What is MusicSeer?
+
+MusicSeer is your music companion for Spotify, Apple Music, Plexamp, and other macOS media players.
+It helps you learn more about your favorite music with lyrics, artist bios, album information, and song meaning interpretation.
+
+## Supported Players
+
+Confirmed support:
+- Spotify
+- Apple Music
+- Plexamp
+
+Other macOS media players should also work in many cases. If something does not work with your player, please let me know.
+
+## 🎧 Lyric Search Current Track
 
 Automatically detect the song currently playing on macOS and open matching Genius lyrics without typing a query.
 
-## 🎶 Menu Bar Now Playing
+## 🎶 Now Playing Menu Bar Item
 
 Show the current track and artist directly in the Raycast menu bar, with quick actions to open lyrics and track, artist, or album info.
+You can also customize the menu bar title using template variables: `{track}`, `{artist}`, and `{album}`.
 
 ## 🤖 AI Lyric Interpretation
 
@@ -22,18 +37,30 @@ MusicSeer also supports manual song-title search, search by remembered lyric lin
 
 ## Install `media-control` (macOS)
 
-MusicSeer uses `media-control` to detect the currently playing (or recently paused) track.
+MusicSeer needs `media-control` to detect the currently playing (or recently paused) track.
 
-Recommended (Homebrew):
+If you already have Homebrew installed, run:
 
 ```bash
 brew install media-control
 ```
 
-Verify installation:
+If you do **not** have Homebrew yet:
+
+1. Install Homebrew from [brew.sh](https://brew.sh/).
+2. Open Terminal and run:
+
+```bash
+brew install media-control
+```
+
+Verify everything is working:
 
 ```bash
 media-control get
 ```
 
-Alternative (advanced): build from source at [ungive/media-control](https://github.com/ungive/media-control).
+If the command returns now-playing JSON, setup is complete.
+
+No Homebrew / advanced option:
+- Build from source: [ungive/media-control](https://github.com/ungive/media-control)
