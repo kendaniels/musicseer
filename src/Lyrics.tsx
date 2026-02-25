@@ -1,17 +1,22 @@
-import { Action, ActionPanel, Detail, LaunchType, launchCommand } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, LaunchType, launchCommand } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { load } from "cheerio";
 import { useMemo } from "react";
 import InterpretLyricsView from "./interpret-lyrics";
+import AlbumBioView from "./album-bio";
+import ArtistBioView from "./artist-bio";
+import SongBioView from "./song-bio";
 
 type SongResponse = {
   response: {
     song: {
       title?: string;
       primary_artist: {
+        id?: number;
         name: string;
       };
       album?: {
+        id?: number;
         name: string;
       };
       release_date?: string;
@@ -64,8 +69,10 @@ export default function Lyrics({
   const song = songData?.response?.song;
   const songTitle = song?.title || title;
   const artist = song?.primary_artist?.name || "";
+  const artistId = song?.primary_artist?.id;
   const manualSearchQuery = preferredManualQuery?.trim() || [songTitle, artist].filter(Boolean).join(" ").trim();
   const album = song?.album?.name || "";
+  const albumId = song?.album?.id;
   const releaseDate = song?.release_date_for_display || song?.release_date || "";
   const producersArr = song?.producer_artists?.map((p: { name: string }) => p.name) || [];
   const writersArr = song?.writer_artists?.map((w: { name: string }) => w.name) || [];
@@ -79,6 +86,14 @@ export default function Lyrics({
       navigationTitle={title}
       metadata={
         <Detail.Metadata>
+          {songTitle && (
+            <>
+              <Detail.Metadata.Label title="Track" text={songTitle} />
+              {(artist || releaseDate || album || producersArr.length > 0 || writersArr.length > 0) && (
+                <Detail.Metadata.Separator />
+              )}
+            </>
+          )}
           {artist && (
             <>
               <Detail.Metadata.Label title="Artist" text={artist} />
@@ -117,11 +132,31 @@ export default function Lyrics({
         <ActionPanel>
           <Action.Push
             title="Interpret Lyrics"
+            icon={Icon.Stars}
             shortcut={{ modifiers: ["cmd"], key: "i" }}
             target={<InterpretLyricsView title={title} artist={artist} lyrics={text} sourceUrl={url} />}
           />
+          <Action.Push
+            title="Track Info"
+            icon={Icon.Info}
+            shortcut={{ modifiers: ["cmd"], key: "b" }}
+            target={<SongBioView songId={songId} title={songTitle} />}
+          />
+          <Action.Push
+            title="Artist Info"
+            icon={Icon.Person}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+            target={<ArtistBioView artistId={artistId} name={artist} preferredManualQuery={artist} />}
+          />
+          <Action.Push
+            title="Album Info"
+            icon={Icon.Music}
+            shortcut={{ modifiers: ["cmd"], key: "r" }}
+            target={<AlbumBioView albumId={albumId} title={album} />}
+          />
           <Action
-            title="Search Song Manually"
+            title="Search Track Manually"
+            icon={Icon.MagnifyingGlass}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
             onAction={async () => {
               await launchCommand({

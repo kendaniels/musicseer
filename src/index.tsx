@@ -3,7 +3,7 @@ import { useFetch, useLocalStorage } from "@raycast/utils";
 import { useEffect, useState } from "react";
 import Lyrics from "./Lyrics";
 import History, { HistoryItem } from "./History";
-import { inspectNowPlaying } from "./media-control";
+import { inspectNowPlayingForLookup } from "./media-control";
 
 type QueryResponse = {
   response: {
@@ -38,7 +38,7 @@ export default function Command() {
 
     async function detectTrack() {
       setIsDetectingTrack(true);
-      const info = await inspectNowPlaying();
+      const info = await inspectNowPlayingForLookup("track");
       if (cancelled) {
         return;
       }
@@ -107,7 +107,7 @@ export default function Command() {
                 title="Refresh Media-Control Check"
                 onAction={async () => {
                   setIsDetectingTrack(true);
-                  const info = await inspectNowPlaying();
+                  const info = await inspectNowPlayingForLookup("track");
                   if (info.query) {
                     setSearchText(info.query);
                     setTrackDetectionError(null);
@@ -126,7 +126,7 @@ export default function Command() {
                 }}
               />
               <Action
-                title="Search Song Manually"
+                title="Search Track Manually"
                 shortcut={{ modifiers: ["cmd"], key: "s" }}
                 onAction={async () => {
                   await launchCommand({
@@ -160,7 +160,7 @@ export default function Command() {
                 title="Refresh Media-Control Check"
                 onAction={async () => {
                   setIsDetectingTrack(true);
-                  const info = await inspectNowPlaying();
+                  const info = await inspectNowPlayingForLookup("track");
                   if (info.query) {
                     setSearchText(info.query);
                     setTrackDetectionError(null);
@@ -179,7 +179,7 @@ export default function Command() {
                 }}
               />
               <Action
-                title="Search Song Manually"
+                title="Search Track Manually"
                 shortcut={{ modifiers: ["cmd"], key: "s" }}
                 onAction={async () => {
                   await launchCommand({
@@ -208,7 +208,7 @@ export default function Command() {
         actions={
           <ActionPanel>
             <Action
-              title="Search Song Manually"
+              title="Search Track Manually"
               shortcut={{ modifiers: ["cmd"], key: "s" }}
               onAction={async () => {
                 await launchCommand({

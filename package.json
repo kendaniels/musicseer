@@ -18,13 +18,13 @@
   "commands": [
     {
       "name": "index",
-      "title": "Get Lyrics for Current Playing Song",
+      "title": "♫ Get Lyrics for Current Playing Track",
       "description": "Search lyrics with the Genius API.",
       "mode": "view"
     },
     {
       "name": "manual-search",
-      "title": "Manual Song Search",
+      "title": "Manual Track Search",
       "description": "Manually search songs by title and artist with the Genius API.",
       "mode": "view",
       "arguments": [
@@ -37,7 +37,7 @@
     },
     {
       "name": "lyric-search",
-      "title": "Search Song by Lyrics",
+      "title": "Search by Lyric",
       "description": "Search for song titles using remembered lyrics with the Genius API.",
       "mode": "view",
       "arguments": [
@@ -53,6 +53,51 @@
       "title": "Manage Interpretation Prompts",
       "description": "Add, edit, delete, and reset lyric interpretation prompts.",
       "mode": "view"
+    },
+    {
+      "name": "current-artist-bio",
+      "title": "♫ Get Info for Current Artist",
+      "description": "Auto-detect the currently playing song and open the matching artist info from Genius.",
+      "mode": "view"
+    },
+    {
+      "name": "manual-artist-bio-search",
+      "title": "Manual Artist Info Search",
+      "description": "Search for artist info by song title or artist name.",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "query",
+          "placeholder": "Artist or song",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "current-album-bio",
+      "title": "♫ Get Info for Current Album",
+      "description": "Auto-detect the currently playing song and open the matching album info from Genius.",
+      "mode": "view"
+    },
+    {
+      "name": "manual-album-bio-search",
+      "title": "Manual Album Info Search",
+      "description": "Search for album info by song title, artist, or album name.",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "query",
+          "placeholder": "Album, artist, or song",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "now-playing-menubar",
+      "title": "♫ Now Playing",
+      "description": "Show currently playing track and artist in the macOS menu bar.",
+      "mode": "menu-bar",
+      "interval": "10s"
     }
   ],
   "dependencies": {

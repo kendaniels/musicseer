@@ -1,7 +1,21 @@
+import { LocalStorage } from "@raycast/api";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
+
+type LookupKind = "track" | "artist" | "album";
+
+type CachedEligibleMedia = {
+  payload: Record<string, unknown>;
+  cachedAt: number;
+};
+
+const CACHE_KEYS: Record<LookupKind, string> = {
+  track: "cached-eligible-media-track",
+  artist: "cached-eligible-media-artist",
+  album: "cached-eligible-media-album",
+};
 
 export type MediaControlDebugInfo = {
   query: string | null;
@@ -12,6 +26,10 @@ export type MediaControlDebugInfo = {
   binary: string | null;
   attempts: string[];
   isNotInstalled: boolean;
+};
+
+type LookupOptions = {
+  allowCacheFallbackOnIneligible?: boolean;
 };
 
 function isMissingBinaryError(error: unknown): boolean {
@@ -37,6 +55,13 @@ function readStringField(payload: unknown, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function asPayloadRecord(payload: unknown): Record<string, unknown> | null {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+  return payload as Record<string, unknown>;
+}
+
 export function formatNowPlayingSearchQuery(payload: unknown): string | null {
   const title = readStringField(payload, "title");
   const artist = readStringField(payload, "artist");
@@ -46,6 +71,61 @@ export function formatNowPlayingSearchQuery(payload: unknown): string | null {
   }
 
   return [title, artist].filter(Boolean).join(" ");
+}
+
+export function formatNowPlayingAlbumSearchQuery(payload: unknown): string | null {
+  const album = readStringField(payload, "album");
+
+  if (!album) {
+    return null;
+  }
+
+  return album;
+}
+
+function queryForLookupKind(payload: unknown, kind: LookupKind): string | null {
+  const album = readStringField(payload, "album");
+  if (!album) {
+    return null;
+  }
+
+  if (kind === "album") {
+    return formatNowPlayingAlbumSearchQuery(payload);
+  }
+  return formatNowPlayingSearchQuery(payload);
+}
+
+async function saveEligibleMedia(kind: LookupKind, payload: Record<string, unknown>): Promise<void> {
+  try {
+    await LocalStorage.setItem(
+      CACHE_KEYS[kind],
+      JSON.stringify({
+        payload,
+        cachedAt: Date.now(),
+      } satisfies CachedEligibleMedia),
+    );
+  } catch {
+    // Ignore cache write failures; lookup should still continue with live media.
+  }
+}
+
+async function readEligibleMedia(kind: LookupKind): Promise<Record<string, unknown> | null> {
+  try {
+    const cachedRaw = await LocalStorage.getItem<string>(CACHE_KEYS[kind]);
+    if (!cachedRaw || typeof cachedRaw !== "string") {
+      return null;
+    }
+
+    const parsed = JSON.parse(cachedRaw) as unknown;
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+
+    const payload = asPayloadRecord((parsed as CachedEligibleMedia).payload);
+    return payload;
+  } catch {
+    return null;
+  }
 }
 
 export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
@@ -115,5 +195,59 @@ export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
     binary: null,
     attempts,
     isNotInstalled,
+  };
+}
+
+export async function inspectNowPlayingForLookup(
+  kind: LookupKind,
+  options?: LookupOptions,
+): Promise<MediaControlDebugInfo> {
+  const info = await inspectNowPlaying();
+  const livePayload = asPayloadRecord(info.payload);
+  const allowCacheFallbackOnIneligible = options?.allowCacheFallbackOnIneligible === true;
+  if (livePayload) {
+    const liveQuery = queryForLookupKind(livePayload, kind);
+    if (liveQuery) {
+      await saveEligibleMedia(kind, livePayload);
+      return {
+        ...info,
+        payload: livePayload,
+        query: liveQuery,
+      };
+    }
+
+    if (allowCacheFallbackOnIneligible) {
+      const cachedPayload = await readEligibleMedia(kind);
+      const cachedQuery = queryForLookupKind(cachedPayload, kind);
+      if (cachedPayload && cachedQuery) {
+        return {
+          ...info,
+          payload: cachedPayload,
+          query: cachedQuery,
+        };
+      }
+    }
+
+    return {
+      ...info,
+      payload: null,
+      query: null,
+    };
+  }
+
+  const cachedPayload = await readEligibleMedia(kind);
+  const cachedQuery = queryForLookupKind(cachedPayload, kind);
+  if (cachedPayload && cachedQuery) {
+    return {
+      ...info,
+      payload: cachedPayload,
+      query: cachedQuery,
+    };
+  }
+
+  return {
+    ...info,
+    payload: null,
+    query: null,
   };
 }

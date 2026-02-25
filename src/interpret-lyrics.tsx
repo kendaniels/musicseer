@@ -15,7 +15,7 @@ function buildPrompt(input: { title?: string; artist?: string; lyrics: string; i
   return [
     "You are analyzing song lyrics for interpretation.",
     "",
-    `Song: ${input.title || "Unknown"}`,
+    `Track: ${input.title || "Unknown"}`,
     `Artist: ${input.artist || "Unknown"}`,
     "",
     "Instructions:",
@@ -69,6 +69,7 @@ export default function InterpretLyricsView({
     }
 
     if (
+      !selectedPromptId &&
       defaultPromptId &&
       defaultPromptId !== selectedPromptId &&
       prompts.some((prompt) => prompt.id === defaultPromptId)
@@ -162,7 +163,7 @@ export default function InterpretLyricsView({
         <Detail.Metadata>
           {songTitle && (
             <>
-              <Detail.Metadata.Label title="Song" text={songTitle} />
+              <Detail.Metadata.Label title="Track" text={songTitle} />
               <Detail.Metadata.Separator />
             </>
           )}
@@ -183,9 +184,6 @@ export default function InterpretLyricsView({
       }
       actions={
         <ActionPanel>
-          {prompts.map((prompt) => (
-            <Action key={prompt.id} title={prompt.title} onAction={() => setSelectedPromptId(prompt.id)} />
-          ))}
           <Action
             title="Manage Prompts"
             icon={Icon.Gear}
@@ -196,8 +194,22 @@ export default function InterpretLyricsView({
               });
             }}
           />
+          {prompts.filter((prompt) => prompt.id !== selectedPromptId).length > 0 && (
+            <ActionPanel.Section title="Other Prompts">
+              {prompts
+                .filter((prompt) => prompt.id !== selectedPromptId)
+                .map((prompt) => (
+                  <Action
+                    key={prompt.id}
+                    title={prompt.title}
+                    icon={Icon.Stars}
+                    onAction={() => setSelectedPromptId(prompt.id)}
+                  />
+                ))}
+            </ActionPanel.Section>
+          )}
           <Action.CopyToClipboard title="Copy Interpretation" content={markdown} />
-          {sourceUrl && <Action.OpenInBrowser title="Open Song on Genius.com" url={sourceUrl} />}
+          {sourceUrl && <Action.OpenInBrowser title="Open Track on Genius.com" url={sourceUrl} />}
         </ActionPanel>
       }
     />

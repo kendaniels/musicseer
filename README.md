@@ -2,7 +2,23 @@
 
 Forked from the Raycast **Genius Lyrics** extension: [raycast/extensions/tree/main/extensions/genius-lyrics](https://github.com/raycast/extensions/tree/main/extensions/genius-lyrics).
 
-MusicSeer helps you find and work with song lyrics from Genius. You can search by title, search by remembered lyric lines, auto-search using the track currently playing on macOS, and open source pages on Genius.com. It also includes AI lyric interpretation with a prompt management interface so you can customize how interpretations are generated.
+## 🎧 Current Playing Media Search
+
+Automatically detect the song currently playing on macOS and open matching Genius lyrics without typing a query.
+
+## 🎶 Menu Bar Now Playing
+
+Show the current track and artist directly in the Raycast menu bar, with quick actions to open lyrics and track, artist, or album info.
+
+## 🤖 AI Lyric Interpretation
+
+Generate an AI interpretation for the lyrics you are viewing, grounded in the song text and formatted for quick reading.
+
+## 🛠️ Interpretation Prompt Management
+
+Create, edit, and select interpretation prompts to control how AI analysis is generated for each song.
+
+MusicSeer also supports manual song-title search, search by remembered lyric lines, and opening source pages on Genius.com.
 
 ## Install `media-control` (macOS)
 
