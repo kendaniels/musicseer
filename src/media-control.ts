@@ -11,7 +11,22 @@ export type MediaControlDebugInfo = {
   payload: unknown | null;
   binary: string | null;
   attempts: string[];
+  isNotInstalled: boolean;
 };
+
+function isMissingBinaryError(error: unknown): boolean {
+  const code =
+    error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code || "") : "";
+  if (code === "ENOENT") {
+    return true;
+  }
+
+  const message =
+    error && typeof error === "object" && "message" in error
+      ? String((error as { message?: unknown }).message || "")
+      : String(error || "");
+  return message.includes("ENOENT") || message.toLowerCase().includes("not found");
+}
 
 function readStringField(payload: unknown, key: string): string {
   if (!payload || typeof payload !== "object") {
@@ -43,6 +58,7 @@ export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
       payload: null,
       binary: null,
       attempts: [],
+      isNotInstalled: false,
     };
   }
 
@@ -55,6 +71,7 @@ export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
     "/usr/local/opt/media-control/bin/media-control",
   ];
   const attempts: string[] = [];
+  let missingBinaryAttempts = 0;
   const envPath = [process.env.PATH, "/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin"].filter(Boolean).join(":");
 
   for (const mediaControlBinary of candidates) {
@@ -77,12 +94,17 @@ export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
         payload,
         binary: mediaControlBinary,
         attempts,
+        isNotInstalled: false,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      if (isMissingBinaryError(error)) {
+        missingBinaryAttempts += 1;
+      }
       attempts.push(`${mediaControlBinary}: ${message}`);
     }
   }
+  const isNotInstalled = missingBinaryAttempts === candidates.length;
 
   return {
     query: null,
@@ -92,5 +114,6 @@ export async function inspectNowPlaying(): Promise<MediaControlDebugInfo> {
     payload: null,
     binary: null,
     attempts,
+    isNotInstalled,
   };
 }

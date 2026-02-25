@@ -1,4 +1,4 @@
-import { ActionPanel, List, Action, LaunchProps, Icon, Detail, LaunchType, launchCommand } from "@raycast/api";
+import { ActionPanel, List, Action, Icon, Detail, LaunchType, launchCommand } from "@raycast/api";
 import { useFetch, useLocalStorage } from "@raycast/utils";
 import { useEffect, useState } from "react";
 import Lyrics from "./Lyrics";
@@ -20,12 +20,14 @@ type Hit = {
   };
 };
 
-export default function Command(props: LaunchProps<{ arguments: Arguments.Index }>) {
-  const initialQuery = props.arguments.query?.trim() || "";
-  const autoMode = initialQuery.length === 0 && process.platform === "darwin";
+export default function Command() {
+  const initialQuery = "";
+  const autoMode = process.platform === "darwin";
   const [searchText, setSearchText] = useState(initialQuery);
   const [isDetectingTrack, setIsDetectingTrack] = useState(autoMode);
   const [trackDetectionError, setTrackDetectionError] = useState<string | null>(null);
+  const [isMediaControlMissing, setIsMediaControlMissing] = useState(false);
+  const [isMediaControlInstalled, setIsMediaControlInstalled] = useState(false);
 
   useEffect(() => {
     if (!autoMode) {
@@ -43,8 +45,12 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Index 
       if (info.query) {
         setSearchText(info.query);
         setTrackDetectionError(null);
+        setIsMediaControlMissing(false);
+        setIsMediaControlInstalled(false);
       } else {
         setTrackDetectionError(info.error || "No now-playing track detected");
+        setIsMediaControlMissing(info.isNotInstalled);
+        setIsMediaControlInstalled(false);
       }
       setIsDetectingTrack(false);
     }
@@ -77,6 +83,118 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Index 
 
     if (topHit) {
       return <Lyrics url={topHit.url} title={topHit.full_title} songId={topHit.id} preferredManualQuery={searchText} />;
+    }
+
+    if (isMediaControlMissing) {
+      return (
+        <Detail
+          markdown={[
+            "# Install `media-control`",
+            "",
+            "MusicSeer needs `media-control` to auto-detect the currently playing track on macOS.",
+            "",
+            "Official install method:",
+            "```bash",
+            "brew install media-control",
+            "```",
+            "",
+            "Other option (advanced): build from source from the upstream project:",
+            "https://github.com/ungive/media-control",
+          ].join("\n")}
+          actions={
+            <ActionPanel>
+              <Action
+                title="Refresh Media-Control Check"
+                onAction={async () => {
+                  setIsDetectingTrack(true);
+                  const info = await inspectNowPlaying();
+                  if (info.query) {
+                    setSearchText(info.query);
+                    setTrackDetectionError(null);
+                    setIsMediaControlMissing(false);
+                    setIsMediaControlInstalled(true);
+                  } else if (info.isNotInstalled) {
+                    setTrackDetectionError(info.error || "No now-playing track detected");
+                    setIsMediaControlMissing(true);
+                    setIsMediaControlInstalled(false);
+                  } else {
+                    setTrackDetectionError(info.error || "No now-playing track detected");
+                    setIsMediaControlMissing(false);
+                    setIsMediaControlInstalled(true);
+                  }
+                  setIsDetectingTrack(false);
+                }}
+              />
+              <Action
+                title="Search Song Manually"
+                shortcut={{ modifiers: ["cmd"], key: "s" }}
+                onAction={async () => {
+                  await launchCommand({
+                    name: "manual-search",
+                    type: LaunchType.UserInitiated,
+                    arguments: {
+                      query: searchText,
+                    },
+                  });
+                }}
+              />
+            </ActionPanel>
+          }
+        />
+      );
+    }
+
+    if (isMediaControlInstalled && searchText.length === 0) {
+      return (
+        <Detail
+          markdown={[
+            "# `media-control` is installed",
+            "",
+            "MusicSeer can access `media-control` successfully.",
+            "",
+            "No active track was detected right now. Start playback and run refresh again.",
+          ].join("\n")}
+          actions={
+            <ActionPanel>
+              <Action
+                title="Refresh Media-Control Check"
+                onAction={async () => {
+                  setIsDetectingTrack(true);
+                  const info = await inspectNowPlaying();
+                  if (info.query) {
+                    setSearchText(info.query);
+                    setTrackDetectionError(null);
+                    setIsMediaControlMissing(false);
+                    setIsMediaControlInstalled(true);
+                  } else if (info.isNotInstalled) {
+                    setTrackDetectionError(info.error || "No now-playing track detected");
+                    setIsMediaControlMissing(true);
+                    setIsMediaControlInstalled(false);
+                  } else {
+                    setTrackDetectionError(info.error || "No now-playing track detected");
+                    setIsMediaControlMissing(false);
+                    setIsMediaControlInstalled(true);
+                  }
+                  setIsDetectingTrack(false);
+                }}
+              />
+              <Action
+                title="Search Song Manually"
+                shortcut={{ modifiers: ["cmd"], key: "s" }}
+                onAction={async () => {
+                  await launchCommand({
+                    name: "manual-search",
+                    type: LaunchType.UserInitiated,
+                    arguments: {
+                      query: searchText,
+                    },
+                  });
+                }}
+              />
+            </ActionPanel>
+          }
+        />
+      );
     }
 
     const failureMessage =

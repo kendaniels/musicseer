@@ -18,16 +18,9 @@
   "commands": [
     {
       "name": "index",
-      "title": "Get Current Song Lyrics",
+      "title": "Get Lyrics for Current Playing Song",
       "description": "Search lyrics with the Genius API.",
-      "mode": "view",
-      "arguments": [
-        {
-          "name": "query",
-          "placeholder": "Query",
-          "type": "text"
-        }
-      ]
+      "mode": "view"
     },
     {
       "name": "manual-search",
