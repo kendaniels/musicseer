@@ -1,13 +1,13 @@
-# MusicSeer
+# 🔮 MusicSeer
 
 Forked from the Raycast **Genius Lyrics** extension: [raycast/extensions/tree/main/extensions/genius-lyrics](https://github.com/raycast/extensions/tree/main/extensions/genius-lyrics).
 
-## What is MusicSeer?
+## ℹ️ What is MusicSeer?
 
 MusicSeer is your music companion for Spotify, Apple Music, Plexamp, and other macOS media players.
 It helps you learn more about your favorite music with lyrics, artist bios, album information, and song meaning interpretation.
 
-## Supported Players
+## ▶️ Supported Players
 
 Confirmed support:
 - Spotify
@@ -16,7 +16,7 @@ Confirmed support:
 
 Other macOS media players should also work in many cases. If something does not work with your player, please let me know.
 
-## 🎧 Lyric Search Current Track
+## 🎤 Lyric Search Current Track
 
 Automatically detect the song currently playing on macOS and open matching Genius lyrics without typing a query.
 
