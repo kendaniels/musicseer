@@ -311,7 +311,7 @@ export default function Command() {
       isLoading={!hasInitialized}
       title={menuTitle(state, titleTemplate)}
       icon={showArtworkInMenuBar ? state.artworkUrl || undefined : undefined}
-      tooltip="Music Seer Now Playing"
+      tooltip="Liner Notes Now Playing"
     >
       <MenuBarExtra.Section title="Open Command">
         <MenuBarExtra.Item

@@ -1,10 +1,10 @@
-# 🔮 Music Seer
+# 📔 Liner Notes
 
 Forked from the Raycast **Genius Lyrics** extension: [raycast/extensions/tree/main/extensions/genius-lyrics](https://github.com/raycast/extensions/tree/main/extensions/genius-lyrics).
 
-## ℹ️ What is Music Seer?
+## ℹ️ What is Liner Notes?
 
-Music Seer is your music companion for Spotify, Apple Music, Plexamp, and other macOS media players.
+Liner Notes is your music companion for Spotify, Apple Music, Plexamp, and other macOS media players.
 It helps you learn more about your favorite music with lyrics, artist bios, album information, and song meaning interpretation.
 
 ## ▶️ Supported Players
@@ -33,11 +33,11 @@ Generate an AI interpretation for the lyrics you are viewing, grounded in the so
 
 Create, edit, and select interpretation prompts to control how AI analysis is generated for each song.
 
-Music Seer also supports manual song-title search, search by remembered lyric lines, and opening source pages on Genius.com.
+Liner Notes also supports manual song-title search, search by remembered lyric lines, and opening source pages on Genius.com.
 
 ## Install `media-control` (macOS)
 
-Music Seer needs `media-control` to detect the currently playing (or recently paused) track.
+Liner Notes needs `media-control` to detect the currently playing (or recently paused) track.
 
 If you already have Homebrew installed, run:
 

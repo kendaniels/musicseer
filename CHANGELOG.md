@@ -1,6 +1,6 @@
 ## [Branding & Release Prep] - 2026-02-26
-- Rename extension branding from `MusicSeer` to `Music Seer`.
-- Update package slug from `musicseer` to `music-seer`.
+- Rename extension branding from `MusicSeer` to `Liner Notes`.
+- Update package slug from `musicseer` to `liner-notes`.
 - Refresh store screenshots and align metadata image names with the new slug.
 - Prepare release metadata and assets for `v1.0.1`.
 
